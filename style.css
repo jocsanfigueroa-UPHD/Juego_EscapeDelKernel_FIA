@@ -57,6 +57,21 @@ body {
   gap: 0.2rem;
 }
 
+.brand--logo {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.brand--logo img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid rgba(90, 245, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .brand__label {
   font-size: clamp(1.4rem, 2vw, 2rem);
   letter-spacing: 0.2rem;

@@ -9,6 +9,49 @@ const WIDTH = 960;
 const HEIGHT = 540;
 const GROUND_Y = HEIGHT - 80;
 
+const LEVEL_THEMES = [
+  {
+    bgStart: '#091424',
+    bgEnd: '#040713',
+    ground: '#0b172d',
+    grid: 'rgba(65, 255, 255, 0.05)',
+    accent: '#5af0ff',
+    obstacleOverlay: '#70f0ff',
+  },
+  {
+    bgStart: '#2b082b',
+    bgEnd: '#0d111d',
+    ground: '#1c0a24',
+    grid: 'rgba(255, 83, 173, 0.12)',
+    accent: '#ff5dc1',
+    obstacleOverlay: '#ff98df',
+  },
+  {
+    bgStart: '#10200a',
+    bgEnd: '#04070c',
+    ground: '#132212',
+    grid: 'rgba(142, 255, 153, 0.08)',
+    accent: '#7bff6a',
+    obstacleOverlay: '#a1ff97',
+  },
+  {
+    bgStart: '#1a1309',
+    bgEnd: '#05080d',
+    ground: '#2c160a',
+    grid: 'rgba(255, 189, 89, 0.12)',
+    accent: '#ffbf5c',
+    obstacleOverlay: '#ffd687',
+  },
+  {
+    bgStart: '#071021',
+    bgEnd: '#02040c',
+    ground: '#081526',
+    grid: 'rgba(144, 195, 255, 0.08)',
+    accent: '#73c7ff',
+    obstacleOverlay: '#a7d8ff',
+  },
+];
+
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
 
@@ -123,12 +166,13 @@ class Player extends Entity {
 }
 
 class Obstacle extends Entity {
-  constructor(type, x, speed) {
+  constructor(type, x, speed, theme) {
     const meta = Obstacle.types[type];
     super(x, GROUND_Y - meta.height, meta.width, meta.height);
     this.type = type;
     this.speed = speed;
-    this.color = meta.color;
+    this.theme = theme;
+    this.color = meta.color || theme.obstacleOverlay;
     this.label = meta.label;
     this.hint = meta.hint;
   }
@@ -197,6 +241,7 @@ class Game {
     this.started = false;
     this.backgroundOffset = 0;
     this.maxScore = 0;
+    this.currentTheme = LEVEL_THEMES[0];
     levelValue.textContent = this.level;
     this.setupInput();
     this.resizeCanvas();
@@ -273,6 +318,7 @@ class Game {
     this.spawnTimer = 0;
     this.spawnInterval = 1.4;
     this.player = new Player();
+    this.currentTheme = LEVEL_THEMES[0];
     levelValue.textContent = this.level;
     scoreValue.textContent = Math.floor(this.score);
     this.active = true;
@@ -288,7 +334,7 @@ class Game {
     const type = types[Math.floor(Math.random() * types.length)];
     const x = WIDTH + 80;
     const speed = this.speed + Math.random() * 90;
-    this.obstacles.push(new Obstacle(type, x, speed));
+    this.obstacles.push(new Obstacle(type, x, speed, this.currentTheme));
   }
 
   emitParticles(x, y) {
@@ -341,6 +387,7 @@ class Game {
       this.level = newLevel;
       this.speed += 20;
       this.spawnInterval = Math.max(0.85, this.spawnInterval - 0.12);
+      this.currentTheme = LEVEL_THEMES[(this.level - 1) % LEVEL_THEMES.length];
       levelValue.textContent = this.level;
       this.audio.playClick();
     }
@@ -377,15 +424,15 @@ class Game {
 
   drawBackground() {
     const gradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
-    gradient.addColorStop(0, '#091424');
-    gradient.addColorStop(1, '#040713');
+    gradient.addColorStop(0, this.currentTheme.bgStart);
+    gradient.addColorStop(1, this.currentTheme.bgEnd);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
     this.drawGrid();
 
     ctx.save();
-    ctx.fillStyle = 'rgba(90, 245, 255, 0.08)';
+    ctx.fillStyle = this.currentTheme.accent + '22';
     for (let i = 0; i < 6; i++) {
       const x = (i * 220 + (this.backgroundOffset * 0.65)) % (WIDTH + 120) - 120;
       ctx.fillRect(x, GROUND_Y + 10, 120, 16);
