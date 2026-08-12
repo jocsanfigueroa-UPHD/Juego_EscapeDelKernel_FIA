@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape del Kernel FIA</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand__label">KERNEL RUN</span>
+        <span class="brand__sub">Escape del Kernel FIA</span>
+      </div>
+      <div class="metrics">
+        <div class="metric" id="scorePanel">
+          <span class="metric__title">Score</span>
+          <span class="metric__value" id="scoreValue">0</span>
+        </div>
+        <div class="metric" id="levelPanel">
+          <span class="metric__title">Nivel</span>
+          <span class="metric__value" id="levelValue">1</span>
+        </div>
+        <div class="metric" id="statusPanel">
+          <span class="metric__title">Estado</span>
+          <span class="metric__value" id="statusValue">LISTO</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="game-grid">
+      <section class="game-panel">
+        <div class="canvas-holder">
+          <canvas id="gameCanvas" width="960" height="540"></canvas>
+          <div class="overlay" id="gameOverlay">
+            <div class="overlay__card">
+              <h1>Presiona ESPACIO para iniciar</h1>
+              <p>Esquiva las excepciones y sobrevive el mayor tiempo posible.</p>
+              <p><strong>Física con Delta Time · Colisiones AABB · Web Audio API</strong></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="info-panel">
+        <div class="panel-block">
+          <h2>Controles</h2>
+          <ul>
+            <li><strong>Espacio / Flecha arriba</strong>: Saltar</li>
+            <li><strong>Flecha abajo</strong>: Agacharse</li>
+            <li><strong>P</strong>: Pausa / Reanuda</li>
+          </ul>
+        </div>
+        <div class="panel-block">
+          <h2>Objetivo</h2>
+          <p>Conduce al agente del hilo de ejecución a través de un corredor ciberpunk evitando:</p>
+          <ul>
+            <li>NullPointerException</li>
+            <li>StackOverflow</li>
+            <li>MemoryLeak</li>
+          </ul>
+        </div>
+        <div class="panel-block">
+          <h2>Conceptos clave</h2>
+          <ul>
+            <li><strong>Hilo de ejecución:</strong> representa el proceso activo que ejecuta el programa y debe saltar los errores.</li>
+            <li><strong>NullPointerException:</strong> un fallo cuando el hilo se encuentra con una referencia nula.</li>
+            <li><strong>StackOverflow:</strong> exceso de llamadas recursivas o datos apilados que detienen el flujo del programa.</li>
+            <li><strong>MemoryLeak:</strong> objetos que no se liberan y generan sobrecarga de memoria en el sistema.</li>
+            <li><strong>Delta Time:</strong> cálculo de tiempo entre fotogramas para que la física sea fluida en cualquier velocidad de CPU.</li>
+            <li><strong>Colisiones AABB:</strong> detección rápida entre rectángulos alineados al eje para saber cuándo chocas.</li>
+            <li><strong>Web Audio API:</strong> motor de sonido que genera los efectos directamente en el navegador.</li>
+          </ul>
+        </div>
+        <div class="panel-block panel-block--hint">
+          <h2>Sugerencia</h2>
+          <p>Mantén el ritmo y limpia la memoria eliminando obstáculos fuera de pantalla automáticamente.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer-bar">
+      <div>Made for Ingeniería en Sistemas Computacionales</div>
+      <div>Desarrollado con HTML5 Canvas y JavaScript orientado a objetos</div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
