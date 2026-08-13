@@ -722,8 +722,8 @@ body[data-game-mode="play"] .menu-page {
   }
 
   .canvas-holder {
-    min-height: 52vh;
-    max-height: 58vh;
+    min-height: 48vh;
+    max-height: 56vh;
   }
 
   .mobile-controls {
@@ -770,13 +770,19 @@ body[data-game-mode="play"] .menu-page {
   }
 
   .canvas-holder {
-    min-height: 48vh;
+    min-height: 42vh;
+    max-height: 50vh;
     border-radius: 16px;
   }
 
   .mobile-hud,
   .mobile-controls {
     display: flex;
+  }
+
+  .mobile-hud {
+    top: 0.45rem;
+    left: 0.45rem;
   }
 
   .mobile-controls {
@@ -793,5 +799,6 @@ body[data-game-mode="play"] .menu-page {
 
   .overlay__card {
     border-radius: 18px;
+    max-width: 92vw;
   }
 }
