@@ -29,6 +29,10 @@
           <span class="metric__title">Estado</span>
           <span class="metric__value" id="statusValue">LISTO</span>
         </div>
+        <div class="metric metric--best" id="bestScorePanel">
+          <span class="metric__title">Mejor</span>
+          <span class="metric__value" id="bestScoreValue">0</span>
+        </div>
       </div>
     </header>
 
@@ -38,9 +42,22 @@
           <canvas id="gameCanvas" width="960" height="540"></canvas>
           <div class="overlay" id="gameOverlay">
             <div class="overlay__card">
-              <h1>Presiona ESPACIO para iniciar</h1>
-              <p>Esquiva las excepciones y sobrevive el mayor tiempo posible.</p>
-              <p><strong>Física con Delta Time · Colisiones AABB · Web Audio API</strong></p>
+              <div class="chip">KERNEL RUN</div>
+              <h1 id="overlayTitle">Escape del Kernel FIA</h1>
+              <p id="overlayText">Esquiva las excepciones y sobrevive el mayor tiempo posible.</p>
+              <ul id="overlayList" class="overlay__list">
+                <li>Salta con ESPACIO o ↑</li>
+                <li>Agáchate con ↓ para pasar por huecos bajos</li>
+                <li>Pausa con P cuando lo necesites</li>
+              </ul>
+              <p id="overlayMeta" class="overlay__meta"><strong>Física con Delta Time · Colisiones AABB · Web Audio API</strong></p>
+
+              <div class="overlay__actions">
+                <button id="playButton" class="action-button action-button--primary">Jugar</button>
+                <button id="pauseButton" class="action-button">Pausar</button>
+                <button id="restartButton" class="action-button">Reiniciar</button>
+                <button id="helpButton" class="action-button action-button--ghost">¿Qué es?</button>
+              </div>
             </div>
           </div>
         </div>
@@ -78,8 +95,7 @@
           </ul>
         </div>
         <div class="panel-block">
-          <h2>Logo</h2>
-    
+   
         </div>
         <div class="panel-block panel-block--hint">
           <h2>Sugerencia</h2>
