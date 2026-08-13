@@ -426,6 +426,7 @@ class Game {
       restart: document.getElementById('restartButton'),
       help: document.getElementById('helpButton'),
     };
+    this.menuButtons.pause.textContent = 'Pausar';
     levelValue.textContent = this.level;
     bestScoreValue.textContent = Math.floor(this.bestScore);
     this.bindButtons();
@@ -462,23 +463,47 @@ class Game {
     });
 
     this.menuButtons.help.addEventListener('click', () => {
-      this.helpVisible ? this.showMenu() : this.showHelp();
+      if (this.helpVisible) {
+        if (this.started && this.active) {
+          this.paused = false;
+          this.menuButtons.pause.textContent = 'Pausar';
+          overlay.classList.remove('overlay--interactive');
+          overlay.style.display = 'none';
+          this.lastTime = performance.now();
+          requestAnimationFrame(this.loop);
+          this.helpVisible = false;
+          statusValue.textContent = 'EN EJECUCIÓN';
+        } else {
+          this.showMenu();
+        }
+      } else {
+        this.showHelp();
+      }
     });
   }
 
   showHelp() {
     this.helpVisible = true;
+    if (this.active && !this.paused) {
+      this.paused = true;
+      this.menuButtons.pause.textContent = 'Continuar';
+      statusValue.textContent = 'PAUSADO';
+    }
     this.setOverlay({
       title: '¿Qué es Kernel Run?',
-      text: 'Es un runner ciberpunk donde el jugador esquiva errores y sobrevive mientras el sistema se corrompe.',
-      meta: 'Explicación de términos clave',
+      text: 'Es un runner ciberpunk inspirado en errores del sistema, donde debes sobrevivir evitando fallos del kernel y acumulando puntos.',
+      meta: 'Realizado por Jocsan Zelaya · Fundamentos de Inteligencia Artificial',
       list: [
+        'Nombre del juego: Escape del Kernel FIA.',
+        'Objetivo: esquivar errores del sistema y sobrevivir el mayor tiempo posible.',
+        'Controles: Espacio o ↑ para saltar, ↓ para agacharte, P para pausar, y los botones del menú para jugar o reiniciar.',
         'NullPointerException: error cuando una referencia apunta a un valor nulo.',
         'StackOverflow: la pila de ejecución se llena y el sistema se rompe.',
         'MemoryLeak: la memoria se queda ocupada y no se libera.',
         'Combo: serie de obstáculos evitados sin tocar nada.',
         'Boss final: enemigo gigante que aparece al llegar a la fase final.',
-        'Parallax: capas de fondo que se mueven a distinta velocidad para dar profundidad.'
+        'Parallax: capas de fondo que se mueven a distinta velocidad para dar profundidad.',
+        'Realizado por: Jocsan Zelaya, con HTML Canvas y JavaScript orientado a objetos.'
       ],
     });
     overlay.classList.add('overlay--interactive');
@@ -566,6 +591,7 @@ class Game {
     if (!this.started) return;
     this.paused = !this.paused;
     statusValue.textContent = this.paused ? 'PAUSADO' : 'EN EJECUCIÓN';
+    this.menuButtons.pause.textContent = this.paused ? 'Continuar' : 'Pausar';
     if (this.paused) {
       overlay.classList.add('overlay--interactive');
       this.setOverlay({
@@ -592,6 +618,7 @@ class Game {
     this.started = true;
     this.helpVisible = false;
     this.menuButtons.help.textContent = '¿Qué es?';
+    this.menuButtons.pause.textContent = 'Pausar';
     overlay.classList.remove('overlay--interactive');
     overlay.style.display = 'none';
     statusValue.textContent = 'EN EJECUCIÓN';
@@ -624,6 +651,7 @@ class Game {
     this.started = true;
     this.helpVisible = false;
     this.menuButtons.help.textContent = '¿Qué es?';
+    this.menuButtons.pause.textContent = 'Pausar';
     statusValue.textContent = 'EN EJECUCIÓN';
     overlay.classList.remove('overlay--interactive');
     overlay.style.display = 'none';
