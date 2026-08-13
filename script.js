@@ -609,7 +609,8 @@ class Game {
 
   resizeCanvas() {
     const wrapperWidth = canvas.parentElement.clientWidth;
-    const scale = Math.min(1, wrapperWidth / WIDTH);
+    const maxHeight = Math.max(220, window.innerHeight * 0.52);
+    const scale = Math.min(1, wrapperWidth / WIDTH, maxHeight / HEIGHT);
     canvas.style.width = `${Math.floor(WIDTH * scale)}px`;
     canvas.style.height = `${Math.floor(HEIGHT * scale)}px`;
     canvas.style.imageRendering = 'pixelated';

@@ -134,12 +134,19 @@ body {
   overflow: hidden;
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(28, 20, 100, 0.94), rgba(251, 196, 19, 0.72) 100%);
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 canvas {
   width: 100%;
   height: auto;
   display: block;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .overlay {
@@ -665,14 +672,16 @@ body[data-game-mode="play"] .menu-page {
 
   body {
     padding: 0.5rem;
+    min-height: 100svh;
   }
 
   .app-shell {
     gap: 0.75rem;
+    width: 100%;
   }
 
   .topbar {
-    padding: 0.8rem 0.9rem;
+    padding: 0.7rem 0.8rem;
   }
 
   .metrics {
@@ -683,6 +692,7 @@ body[data-game-mode="play"] .menu-page {
   .metric {
     width: 100%;
     flex-basis: 100%;
+    padding: 0.65rem 0.8rem;
   }
 
   .game-panel {
@@ -690,7 +700,8 @@ body[data-game-mode="play"] .menu-page {
   }
 
   .canvas-holder {
-    min-height: 56vh;
+    min-height: 52vh;
+    max-height: 58vh;
   }
 
   .mobile-controls {
@@ -720,5 +731,40 @@ body[data-game-mode="play"] .menu-page {
 
   .action-button {
     min-height: 48px;
+  }
+}
+
+@media (max-width: 420px) {
+  body {
+    padding: 0.35rem;
+  }
+
+  .topbar {
+    display: none;
+  }
+
+  .app-shell {
+    gap: 0.5rem;
+  }
+
+  .canvas-holder {
+    min-height: 48vh;
+    border-radius: 16px;
+  }
+
+  .mobile-controls {
+    bottom: 0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .touch-button {
+    min-width: 110px;
+    min-height: 50px;
+    font-size: 0.9rem;
+    padding: 0.7rem 0.9rem;
+  }
+
+  .overlay__card {
+    border-radius: 18px;
   }
 }
