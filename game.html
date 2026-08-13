@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kernel Run | Juego</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-game-mode="play">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand brand--logo">
+        <img id="logo" src="logo.png" alt="Logo del juego" />
+        <div>
+          <span class="brand__label">KERNEL RUN</span>
+          <span class="brand__sub">Escape del Kernel FIA</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric" id="scorePanel">
+          <span class="metric__title">Score</span>
+          <span class="metric__value" id="scoreValue">0</span>
+        </div>
+        <div class="metric" id="levelPanel">
+          <span class="metric__title">Nivel</span>
+          <span class="metric__value" id="levelValue">1</span>
+        </div>
+        <div class="metric" id="statusPanel">
+          <span class="metric__title">Estado</span>
+          <span class="metric__value" id="statusValue">LISTO</span>
+        </div>
+        <div class="metric metric--best" id="bestScorePanel">
+          <span class="metric__title">Mejor</span>
+          <span class="metric__value" id="bestScoreValue">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="game-grid">
+      <section class="game-panel">
+        <div class="canvas-holder">
+          <canvas id="gameCanvas" width="960" height="540"></canvas>
+          <div class="overlay" id="gameOverlay">
+            <div class="overlay__card">
+              <div class="menu-hero">
+                <img class="menu-logo" src="logo.png" alt="Logo Kernel Run" />
+                <div class="menu-brand">
+                  <span class="chip">KERNEL RUN</span>
+                  <h1 id="overlayTitle">Escape del Kernel FIA</h1>
+                </div>
+              </div>
+
+              <p class="menu-subtitle" id="overlayText">Esquiva las excepciones, recoge bonus y sobrevive al caos del sistema.</p>
+
+              <ul id="overlayList" class="overlay__list">
+                <li>Salta con ESPACIO o ↑</li>
+                <li>Agáchate con ↓ para pasar por huecos bajos</li>
+                <li>Pausa con P cuando lo necesites</li>
+              </ul>
+              <p id="overlayMeta" class="overlay__meta"><strong>Física con Delta Time · Colisiones AABB · Web Audio API</strong></p>
+
+              <div class="overlay__actions">
+                <button id="playButton" class="action-button action-button--primary">Jugar</button>
+                <button id="pauseButton" class="action-button">Pausar</button>
+                <button id="restartButton" class="action-button">Reiniciar</button>
+                <button id="menuButton" class="action-button action-button--ghost">Menú</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

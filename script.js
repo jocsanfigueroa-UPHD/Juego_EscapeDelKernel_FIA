@@ -16,11 +16,11 @@ const GROUND_Y = HEIGHT - 80;
 const BEST_SCORE_KEY = 'kernel-run-best-score';
 
 const LEVEL_THEMES = [
-  { bgStart: '#091424', bgEnd: '#040713', ground: '#0b172d', grid: 'rgba(65, 255, 255, 0.05)', accent: '#5af0ff', obstacleOverlay: '#70f0ff' },
-  { bgStart: '#2b082b', bgEnd: '#0d111d', ground: '#1c0a24', grid: 'rgba(255, 83, 173, 0.12)', accent: '#ff5dc1', obstacleOverlay: '#ff98df' },
-  { bgStart: '#10200a', bgEnd: '#04070c', ground: '#132212', grid: 'rgba(142, 255, 153, 0.08)', accent: '#7bff6a', obstacleOverlay: '#a1ff97' },
-  { bgStart: '#1a1309', bgEnd: '#05080d', ground: '#2c160a', grid: 'rgba(255, 189, 89, 0.12)', accent: '#ffbf5c', obstacleOverlay: '#ffd687' },
-  { bgStart: '#071021', bgEnd: '#02040c', ground: '#081526', grid: 'rgba(144, 195, 255, 0.08)', accent: '#73c7ff', obstacleOverlay: '#a7d8ff' },
+  { bgStart: '#1c1464', bgEnd: '#fbc413', ground: '#2d1d79', grid: 'rgba(251, 196, 19, 0.12)', accent: '#fbc413', obstacleOverlay: '#ffd75c' },
+  { bgStart: '#2a0d5d', bgEnd: '#1c1464', ground: '#1b0d4d', grid: 'rgba(255, 159, 215, 0.12)', accent: '#ff7fe5', obstacleOverlay: '#ff98e7' },
+  { bgStart: '#10200a', bgEnd: '#1c1464', ground: '#132212', grid: 'rgba(142, 255, 153, 0.08)', accent: '#7bff6a', obstacleOverlay: '#a1ff97' },
+  { bgStart: '#1a1309', bgEnd: '#1c1464', ground: '#2c160a', grid: 'rgba(255, 189, 89, 0.12)', accent: '#ffbf5c', obstacleOverlay: '#ffd687' },
+  { bgStart: '#071021', bgEnd: '#1c1464', ground: '#081526', grid: 'rgba(144, 195, 255, 0.08)', accent: '#73c7ff', obstacleOverlay: '#a7d8ff' },
 ];
 
 canvas.width = WIDTH;
@@ -30,6 +30,7 @@ class AudioSystem {
   constructor() {
     this.context = null;
     this.masterGain = null;
+    this.menuMusicTimer = null;
   }
 
   init() {
@@ -39,6 +40,34 @@ class AudioSystem {
     this.masterGain = this.context.createGain();
     this.masterGain.gain.value = 0.22;
     this.masterGain.connect(this.context.destination);
+  }
+
+  resume() {
+    if (this.context && this.context.state === 'suspended') {
+      this.context.resume();
+    }
+  }
+
+  startMenuMusic() {
+    this.init();
+    this.resume();
+    if (this.menuMusicTimer) return;
+
+    const melody = [220, 330, 392, 440, 392, 330, 294, 262];
+    let index = 0;
+    this.menuMusicTimer = setInterval(() => {
+      const freq = melody[index % melody.length];
+      this.playTone(freq, 0.18, 'triangle', 0.04, 18);
+      this.playTone(freq / 2, 0.22, 'sine', 0.03, 10);
+      index += 1;
+    }, 420);
+  }
+
+  stopMenuMusic() {
+    if (this.menuMusicTimer) {
+      clearInterval(this.menuMusicTimer);
+      this.menuMusicTimer = null;
+    }
   }
 
   createNoiseBuffer(duration = 0.12) {
@@ -395,6 +424,7 @@ class Particle extends Entity {
 
 class Game {
   constructor() {
+    this.loop = this.loop.bind(this);
     this.audio = new AudioSystem();
     this.player = new Player();
     this.obstacles = [];
@@ -420,29 +450,50 @@ class Game {
     this.comboTimer = 0;
     this.comboMultiplier = 1;
     this.helpVisible = false;
+    this.gameOverState = false;
     this.menuButtons = {
       play: document.getElementById('playButton'),
       pause: document.getElementById('pauseButton'),
       restart: document.getElementById('restartButton'),
-      help: document.getElementById('helpButton'),
+      menu: document.getElementById('menuButton'),
     };
     this.menuButtons.pause.textContent = 'Pausar';
+    this.updateMenuButtons();
     levelValue.textContent = this.level;
     bestScoreValue.textContent = Math.floor(this.bestScore);
     this.bindButtons();
     this.setupInput();
     this.resizeCanvas();
-    this.showMenu();
+    const isMenuPage = document.body.dataset.gameMode !== 'play';
+    const shouldAutoStart = new URLSearchParams(window.location.search).get('start') === '1';
+
+    if (isMenuPage) {
+      this.showMenu();
+    } else if (shouldAutoStart) {
+      this.start();
+    } else {
+      this.started = true;
+      this.active = true;
+      overlay.classList.remove('overlay--interactive');
+      overlay.style.display = 'none';
+      statusValue.textContent = 'EN EJECUCIÓN';
+      this.lastTime = performance.now();
+      requestAnimationFrame(this.loop);
+    }
     this.draw();
     window.addEventListener('resize', () => {
       this.resizeCanvas();
       this.draw();
     });
-    this.loop = this.loop.bind(this);
   }
 
   bindButtons() {
     this.menuButtons.play.addEventListener('click', () => {
+      if (this.gameOverState) {
+        this.reset();
+        return;
+      }
+
       if (!this.active && !this.started) {
         this.start();
       } else if (this.paused) {
@@ -453,6 +504,7 @@ class Game {
     });
 
     this.menuButtons.pause.addEventListener('click', () => {
+      if (this.gameOverState) return;
       if (this.started && this.active) {
         this.togglePause();
       }
@@ -462,72 +514,37 @@ class Game {
       this.reset();
     });
 
-    this.menuButtons.help.addEventListener('click', () => {
-      if (this.helpVisible) {
-        if (this.started && this.active) {
-          this.paused = false;
-          this.menuButtons.pause.textContent = 'Pausar';
-          overlay.classList.remove('overlay--interactive');
-          overlay.style.display = 'none';
-          this.lastTime = performance.now();
-          requestAnimationFrame(this.loop);
-          this.helpVisible = false;
-          statusValue.textContent = 'EN EJECUCIÓN';
-        } else {
-          this.showMenu();
-        }
-      } else {
-        this.showHelp();
-      }
+    this.menuButtons.menu.addEventListener('click', () => {
+      window.location.href = 'menu.html';
     });
+
   }
 
-  showHelp() {
-    this.helpVisible = true;
-    if (this.active && !this.paused) {
-      this.paused = true;
-      this.menuButtons.pause.textContent = 'Continuar';
-      statusValue.textContent = 'PAUSADO';
+  updateMenuButtons() {
+    const disableExtraOptions = this.gameOverState;
+    this.menuButtons.pause.disabled = disableExtraOptions || !this.started || !this.active;
+    this.menuButtons.restart.disabled = false;
+    this.menuButtons.menu.disabled = false;
+
+    if (this.gameOverState) {
+      this.menuButtons.pause.textContent = 'Pausar';
+      this.menuButtons.pause.style.display = 'none';
+      this.menuButtons.menu.style.display = 'inline-flex';
+      this.menuButtons.play.style.display = 'inline-flex';
+      this.menuButtons.restart.style.display = 'inline-flex';
+    } else {
+      this.menuButtons.pause.style.display = 'inline-flex';
+      this.menuButtons.menu.style.display = 'none';
     }
-    this.setOverlay({
-      title: '¿Qué es Kernel Run?',
-      text: 'Es un runner ciberpunk inspirado en errores del sistema, donde debes sobrevivir evitando fallos del kernel y acumulando puntos.',
-      meta: 'Realizado por Jocsan Zelaya · Fundamentos de Inteligencia Artificial',
-      list: [
-        `<div class="help-sections">
-          <section class="help-section">
-            <h3>Objetivo</h3>
-            <p>Superar el corredor del sistema evitando errores y recogiendo bonus para mantener el flujo de ejecución.</p>
-          </section>
-          <section class="help-section">
-            <h3>Controles</h3>
-            <p>Espacio o ↑ para saltar, ↓ para agacharte, P para pausar o continuar, y los botones del menú para jugar o reiniciar.</p>
-          </section>
-          <section class="help-section">
-            <h3>Conceptos clave</h3>
-            <ul>
-              <li><strong>NullPointerException:</strong> una referencia vacía rompe el hilo.</li>
-              <li><strong>StackOverflow:</strong> la pila se llena y el sistema falla.</li>
-              <li><strong>MemoryLeak:</strong> la memoria no se libera y se corre el riesgo de saturación.</li>
-              <li><strong>Combo:</strong> serie de obstáculos evitados sin tocar nada.</li>
-              <li><strong>Boss final:</strong> enemigo gigante que aparece en una fase avanzada.</li>
-              <li><strong>Parallax:</strong> capas del fondo con distinta velocidad para darle profundidad.</li>
-            </ul>
-          </section>
-          <section class="help-section">
-            <h3>Autor</h3>
-            <p>Creado por Jocsan Zelaya usando HTML Canvas y JavaScript orientado a objetos.</p>
-          </section>
-        </div>`
-      ],
-    });
-    overlay.classList.add('overlay--interactive');
-    this.menuButtons.help.textContent = 'Volver';
-    overlay.style.display = 'grid';
   }
 
   showMenu() {
     this.helpVisible = false;
+    this.gameOverState = false;
+    overlay.classList.remove('overlay--help');
+    overlay.classList.add('overlay--interactive', 'overlay--login');
+    this.audio.startMenuMusic();
+    this.menuButtons.play.textContent = 'Jugar';
     this.menuButtons.help.textContent = '¿Qué es?';
     this.setOverlay({
       title: 'KERNEL RUN',
@@ -540,8 +557,8 @@ class Game {
         'Recoge SCUDO para neutralizar un choque y TEMP para ralentizar el juego.'
       ],
     });
-    overlay.classList.add('overlay--interactive');
     overlay.style.display = 'grid';
+    this.updateMenuButtons();
   }
 
   setOverlay({ title, text, meta, list = [] }) {
@@ -610,16 +627,26 @@ class Game {
     statusValue.textContent = this.paused ? 'PAUSADO' : 'EN EJECUCIÓN';
     this.menuButtons.pause.textContent = this.paused ? 'Continuar' : 'Pausar';
     if (this.paused) {
-      overlay.classList.add('overlay--interactive');
+      overlay.classList.remove('overlay--help', 'overlay--login');
+      overlay.classList.add('overlay--interactive', 'overlay--compact');
+      this.menuButtons.play.textContent = 'Continuar';
+      this.menuButtons.pause.style.display = 'none';
+      this.menuButtons.help.style.display = 'none';
+      this.menuButtons.menu.style.display = 'none';
+      this.menuButtons.restart.style.display = 'inline-flex';
       this.setOverlay({
         title: 'Juego pausado',
-        text: 'La ejecución del kernel está detenida.',
-        meta: 'Pulsa Pausar o P para continuar.',
-        list: ['Sigue el flujo del hilo.', 'Mira el mapa y prepara el próximo salto.', 'Puedes reiniciar en cualquier momento.']
+        text: '',
+        meta: '',
+        list: []
       });
       overlay.style.display = 'grid';
     } else {
-      overlay.classList.remove('overlay--interactive');
+      overlay.classList.remove('overlay--interactive', 'overlay--compact');
+      this.menuButtons.play.textContent = 'Jugar';
+      this.menuButtons.pause.style.display = 'inline-flex';
+      this.menuButtons.menu.style.display = 'none';
+      this.menuButtons.restart.style.display = 'inline-flex';
       overlay.style.display = 'none';
       this.lastTime = performance.now();
       requestAnimationFrame(this.loop);
@@ -627,23 +654,29 @@ class Game {
   }
 
   start() {
+    this.audio.stopMenuMusic();
+    this.audio.resume();
     if (this.started && !this.active) {
       this.reset();
     }
     if (this.active) return;
     this.active = true;
     this.started = true;
+    this.gameOverState = false;
     this.helpVisible = false;
-    this.menuButtons.help.textContent = '¿Qué es?';
+    this.menuButtons.play.textContent = 'Jugar';
     this.menuButtons.pause.textContent = 'Pausar';
-    overlay.classList.remove('overlay--interactive');
+    overlay.classList.remove('overlay--interactive', 'overlay--compact', 'overlay--help', 'overlay--login');
     overlay.style.display = 'none';
     statusValue.textContent = 'EN EJECUCIÓN';
+    this.updateMenuButtons();
     this.lastTime = performance.now();
     requestAnimationFrame(this.loop);
   }
 
   reset() {
+    this.audio.stopMenuMusic();
+    this.audio.resume();
     this.obstacles.length = 0;
     this.powerUps.length = 0;
     this.particles.length = 0;
@@ -661,17 +694,19 @@ class Game {
     this.combo = 0;
     this.comboTimer = 0;
     this.comboMultiplier = 1;
+    this.gameOverState = false;
+    this.menuButtons.play.textContent = 'Jugar';
     levelValue.textContent = this.level;
     scoreValue.textContent = Math.floor(this.score);
     this.active = true;
     this.paused = false;
     this.started = true;
     this.helpVisible = false;
-    this.menuButtons.help.textContent = '¿Qué es?';
     this.menuButtons.pause.textContent = 'Pausar';
     statusValue.textContent = 'EN EJECUCIÓN';
-    overlay.classList.remove('overlay--interactive');
+    overlay.classList.remove('overlay--interactive', 'overlay--compact', 'overlay--help', 'overlay--login');
     overlay.style.display = 'none';
+    this.updateMenuButtons();
     this.lastTime = performance.now();
     requestAnimationFrame(this.loop);
   }
@@ -847,17 +882,27 @@ class Game {
 
   gameOver() {
     this.active = false;
+    this.gameOverState = true;
+    this.audio.startMenuMusic();
     this.updateBestScore();
     statusValue.textContent = 'ERROR: FALLÓ';
+    this.menuButtons.pause.disabled = true;
+    this.menuButtons.play.textContent = 'Reintentar';
+    this.menuButtons.pause.style.display = 'none';
+    this.menuButtons.menu.style.display = 'inline-flex';
+    this.menuButtons.restart.style.display = 'inline-flex';
     this.setOverlay({
       title: 'SYSTEM FAILURE',
-      text: `Tu puntuación final fue ${Math.floor(this.score)}.`,
-      meta: `Mejor récord: ${this.bestScore}. Presiona ESPACIO para reiniciar.`,
-      list: ['La próxima vez usa el escudo para romper errores.', 'Mantén el ritmo y usa agacharse al momento correcto.', 'P puede pausar en cualquier momento.'],
+      text: '',
+      meta: '',
+      list: [],
     });
+    overlay.classList.add('overlay--interactive');
+    overlay.classList.remove('overlay--help', 'overlay--login', 'overlay--compact');
     overlay.style.display = 'grid';
     this.audio.playCrash();
     this.emitParticles(this.player.position.x + this.player.size.width / 2, this.player.position.y + this.player.size.height / 2, '#ff4b9b');
+    this.updateMenuButtons();
   }
 
   drawParallaxLayer(height, color, speedRatio) {
@@ -958,14 +1003,17 @@ class Game {
   }
 }
 
-const game = new Game();
+if (canvas && overlay && scoreValue && levelValue && statusValue && bestScoreValue) {
+  const game = new Game();
 
-window.addEventListener('click', () => {
-  if (!game.active && !game.paused) {
-    if (!game.started) {
-      game.start();
-    } else {
-      game.reset();
+  window.addEventListener('click', () => {
+    if (game.gameOverState) return;
+    if (!game.active && !game.paused) {
+      if (!game.started) {
+        game.start();
+      } else {
+        game.reset();
+      }
     }
-  }
-});
+  });
+}

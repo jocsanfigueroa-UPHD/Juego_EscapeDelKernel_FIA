@@ -42,9 +42,37 @@
           <canvas id="gameCanvas" width="960" height="540"></canvas>
           <div class="overlay" id="gameOverlay">
             <div class="overlay__card">
-              <div class="chip">KERNEL RUN</div>
-              <h1 id="overlayTitle">Escape del Kernel FIA</h1>
-              <p id="overlayText">Esquiva las excepciones y sobrevive el mayor tiempo posible.</p>
+              <div class="menu-hero">
+                <img class="menu-logo" src="logo.png" alt="Logo Kernel Run" />
+                <div class="menu-brand">
+                  <span class="chip">KERNEL RUN</span>
+                  <h1 id="overlayTitle">Escape del Kernel FIA</h1>
+                </div>
+              </div>
+
+              <div class="main-menu">
+                <p class="menu-subtitle" id="overlayText">Esquiva las excepciones, recoge bonus y sobrevive al caos del sistema.</p>
+
+                <div class="menu-grid">
+                  <div class="menu-card">
+                    <span class="menu-card__label">Objetivo</span>
+                    <p>Evita errores del kernel y mantén vivo el hilo principal el mayor tiempo posible.</p>
+                  </div>
+                  <div class="menu-card">
+                    <span class="menu-card__label">Controles</span>
+                    <p>Espacio o ↑ para saltar, ↓ para agacharte y P para pausar.</p>
+                  </div>
+                  <div class="menu-card">
+                    <span class="menu-card__label">Power Ups</span>
+                    <p>Escudo para bloquear impactos y temporizador para ralentizar la velocidad del juego.</p>
+                  </div>
+                  <div class="menu-card">
+                    <span class="menu-card__label">Desafío</span>
+                    <p>Los niveles suben, aparecen más obstáculos y el boss final se activa en la fase avanzada.</p>
+                  </div>
+                </div>
+              </div>
+
               <ul id="overlayList" class="overlay__list">
                 <li>Salta con ESPACIO o ↑</li>
                 <li>Agáchate con ↓ para pasar por huecos bajos</li>
@@ -83,19 +111,12 @@
           <p>El juego sube de nivel cada 200 puntos. Cada nivel cambia la paleta de colores y acelera los obstáculos.</p>
         </div>
         <div class="panel-block">
-          <h2>Conceptos clave</h2>
-          <ul>
-            <li><strong>Hilo de ejecución:</strong> representa el proceso activo que ejecuta el programa y debe saltar los errores.</li>
-            <li><strong>NullPointerException:</strong> un fallo cuando el hilo se encuentra con una referencia nula.</li>
-            <li><strong>StackOverflow:</strong> exceso de llamadas recursivas o datos apilados que detienen el flujo del programa.</li>
-            <li><strong>MemoryLeak:</strong> objetos que no se liberan y generan sobrecarga de memoria en el sistema.</li>
-            <li><strong>Delta Time:</strong> cálculo de tiempo entre fotogramas para que la física sea fluida en cualquier velocidad de CPU.</li>
-            <li><strong>Colisiones AABB:</strong> detección rápida entre rectángulos alineados al eje para saber cuándo chocas.</li>
-            <li><strong>Web Audio API:</strong> motor de sonido que genera los efectos directamente en el navegador.</li>
-          </ul>
+          <h2>Resumen</h2>
+          <p>Es un juego de supervivencia con estilo cyberpunk donde debes evitar errores del sistema, recoger bonus y mantener vivo el hilo principal.</p>
         </div>
         <div class="panel-block">
-   
+          <h2>Recordatorio</h2>
+          <p>Usa la pausa cuando necesites revisar la pantalla o tomar una mejor decisión para seguir avanzando.</p>
         </div>
         <div class="panel-block panel-block--hint">
           <h2>Sugerencia</h2>
