@@ -9,6 +9,8 @@ const overlayTitle = document.getElementById('overlayTitle');
 const overlayText = document.getElementById('overlayText');
 const overlayList = document.getElementById('overlayList');
 const overlayMeta = document.getElementById('overlayMeta');
+const mobileScoreValue = document.getElementById('mobileScoreValue');
+const mobileLevelValue = document.getElementById('mobileLevelValue');
 
 const WIDTH = 960;
 const HEIGHT = 540;
@@ -462,7 +464,9 @@ class Game {
     this.menuButtons.pause.textContent = 'Pausar';
     this.updateMenuButtons();
     levelValue.textContent = this.level;
+    if (mobileLevelValue) mobileLevelValue.textContent = this.level;
     bestScoreValue.textContent = Math.floor(this.bestScore);
+    if (mobileScoreValue) mobileScoreValue.textContent = Math.floor(this.score);
     this.bindButtons();
     this.setupInput();
     this.resizeCanvas();
@@ -727,7 +731,9 @@ class Game {
     this.gameOverState = false;
     this.menuButtons.play.textContent = 'Jugar';
     levelValue.textContent = this.level;
+    if (mobileLevelValue) mobileLevelValue.textContent = this.level;
     scoreValue.textContent = Math.floor(this.score);
+    if (mobileScoreValue) mobileScoreValue.textContent = Math.floor(this.score);
     this.active = true;
     this.paused = false;
     this.started = true;
@@ -839,6 +845,7 @@ class Game {
     this.score += deltaTime * 88 * scoreFactor * this.comboMultiplier;
     this.speed += deltaTime * 2.5;
     scoreValue.textContent = Math.floor(this.score);
+    if (mobileScoreValue) mobileScoreValue.textContent = Math.floor(this.score);
     this.updateLevel();
 
     for (let obstacle of this.obstacles) {
@@ -905,6 +912,7 @@ class Game {
       this.spawnInterval = Math.max(0.85, this.spawnInterval - 0.12);
       this.currentTheme = LEVEL_THEMES[(this.level - 1) % LEVEL_THEMES.length];
       levelValue.textContent = this.level;
+      if (mobileLevelValue) mobileLevelValue.textContent = this.level;
       this.flashTimer = 0.16;
       this.audio.playClick();
     }

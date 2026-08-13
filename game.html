@@ -41,6 +41,11 @@
         <div class="canvas-holder">
           <canvas id="gameCanvas" width="960" height="540"></canvas>
 
+          <div class="mobile-hud" aria-live="polite">
+            <span>Score <strong id="mobileScoreValue">0</strong></span>
+            <span>Lvl <strong id="mobileLevelValue">1</strong></span>
+          </div>
+
           <div class="mobile-controls" aria-label="Controles del juego">
             <button id="mobileJumpButton" class="touch-button touch-button--jump" type="button">Saltar</button>
             <button id="mobilePauseButton" class="touch-button touch-button--pause" type="button">Pausa</button>

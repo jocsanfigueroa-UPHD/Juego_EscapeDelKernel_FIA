@@ -158,6 +158,28 @@ canvas {
   pointer-events: none;
 }
 
+.mobile-hud {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: none;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  z-index: 2;
+}
+
+.mobile-hud span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(9, 12, 28, 0.7);
+  border: 1px solid rgba(251, 196, 19, 0.32);
+  color: var(--text);
+  font-size: 0.72rem;
+}
+
 .mobile-controls {
   position: absolute;
   left: 0;
@@ -750,6 +772,11 @@ body[data-game-mode="play"] .menu-page {
   .canvas-holder {
     min-height: 48vh;
     border-radius: 16px;
+  }
+
+  .mobile-hud,
+  .mobile-controls {
+    display: flex;
   }
 
   .mobile-controls {
