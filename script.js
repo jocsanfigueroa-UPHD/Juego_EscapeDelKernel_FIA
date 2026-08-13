@@ -304,6 +304,42 @@ class Obstacle extends Entity {
   }
 }
 
+class Boss extends Entity {
+  constructor() {
+    super(WIDTH + 180, GROUND_Y - 170, 220, 170);
+    this.hp = 5;
+    this.speed = 120;
+    this.phase = 0;
+  }
+
+  update(deltaTime) {
+    this.phase += deltaTime;
+    this.position.x -= this.speed * deltaTime;
+  }
+
+  draw(ctx) {
+    const x = this.position.x;
+    const y = this.position.y;
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 88, 129, 0.3)';
+    ctx.fillRect(x - 18, y + 10, this.size.width + 36, this.size.height + 16);
+    ctx.fillStyle = '#ff5d8f';
+    ctx.fillRect(x, y, this.size.width, this.size.height);
+    ctx.fillStyle = '#0b0d18';
+    ctx.fillRect(x + 24, y + 30, 52, 42);
+    ctx.fillRect(x + this.size.width - 76, y + 30, 52, 42);
+    ctx.fillStyle = '#ffe6f0';
+    ctx.fillRect(x + 36, y + 42, 24, 18);
+    ctx.fillRect(x + this.size.width - 60, y + 42, 24, 18);
+    ctx.fillStyle = '#ffd166';
+    ctx.fillRect(x + 60, y + 90, this.size.width - 120, 18);
+    ctx.fillStyle = '#dffcff';
+    ctx.font = '700 16px IBM Plex Mono, monospace';
+    ctx.fillText(`BOSS ${this.hp}`, x + 60, y - 12);
+    ctx.restore();
+  }
+}
+
 class PowerUp extends Entity {
   constructor(type, x, speed) {
     super(x, GROUND_Y - 32, 28, 28);
@@ -364,6 +400,8 @@ class Game {
     this.obstacles = [];
     this.powerUps = [];
     this.particles = [];
+    this.boss = null;
+    this.bossActive = false;
     this.lastTime = 0;
     this.score = 0;
     this.level = 1;
@@ -378,8 +416,19 @@ class Game {
     this.slowMotionTimer = 0;
     this.bestScore = Number(localStorage.getItem(BEST_SCORE_KEY) || 0);
     this.flashTimer = 0;
+    this.combo = 0;
+    this.comboTimer = 0;
+    this.comboMultiplier = 1;
+    this.helpVisible = false;
+    this.menuButtons = {
+      play: document.getElementById('playButton'),
+      pause: document.getElementById('pauseButton'),
+      restart: document.getElementById('restartButton'),
+      help: document.getElementById('helpButton'),
+    };
     levelValue.textContent = this.level;
     bestScoreValue.textContent = Math.floor(this.bestScore);
+    this.bindButtons();
     this.setupInput();
     this.resizeCanvas();
     this.showMenu();
@@ -391,7 +440,55 @@ class Game {
     this.loop = this.loop.bind(this);
   }
 
+  bindButtons() {
+    this.menuButtons.play.addEventListener('click', () => {
+      if (!this.active && !this.started) {
+        this.start();
+      } else if (this.paused) {
+        this.togglePause();
+      } else if (this.started && !this.active) {
+        this.reset();
+      }
+    });
+
+    this.menuButtons.pause.addEventListener('click', () => {
+      if (this.started && this.active) {
+        this.togglePause();
+      }
+    });
+
+    this.menuButtons.restart.addEventListener('click', () => {
+      this.reset();
+    });
+
+    this.menuButtons.help.addEventListener('click', () => {
+      this.helpVisible ? this.showMenu() : this.showHelp();
+    });
+  }
+
+  showHelp() {
+    this.helpVisible = true;
+    this.setOverlay({
+      title: '¿Qué es Kernel Run?',
+      text: 'Es un runner ciberpunk donde el jugador esquiva errores y sobrevive mientras el sistema se corrompe.',
+      meta: 'Explicación de términos clave',
+      list: [
+        'NullPointerException: error cuando una referencia apunta a un valor nulo.',
+        'StackOverflow: la pila de ejecución se llena y el sistema se rompe.',
+        'MemoryLeak: la memoria se queda ocupada y no se libera.',
+        'Combo: serie de obstáculos evitados sin tocar nada.',
+        'Boss final: enemigo gigante que aparece al llegar a la fase final.',
+        'Parallax: capas de fondo que se mueven a distinta velocidad para dar profundidad.'
+      ],
+    });
+    overlay.classList.add('overlay--interactive');
+    this.menuButtons.help.textContent = 'Volver';
+    overlay.style.display = 'grid';
+  }
+
   showMenu() {
+    this.helpVisible = false;
+    this.menuButtons.help.textContent = '¿Qué es?';
     this.setOverlay({
       title: 'KERNEL RUN',
       text: 'Escapa del kernel y sobrevive al caos digital.',
@@ -403,6 +500,7 @@ class Game {
         'Recoge SCUDO para neutralizar un choque y TEMP para ralentizar el juego.'
       ],
     });
+    overlay.classList.add('overlay--interactive');
     overlay.style.display = 'grid';
   }
 
@@ -468,7 +566,18 @@ class Game {
     if (!this.started) return;
     this.paused = !this.paused;
     statusValue.textContent = this.paused ? 'PAUSADO' : 'EN EJECUCIÓN';
-    if (!this.paused) {
+    if (this.paused) {
+      overlay.classList.add('overlay--interactive');
+      this.setOverlay({
+        title: 'Juego pausado',
+        text: 'La ejecución del kernel está detenida.',
+        meta: 'Pulsa Pausar o P para continuar.',
+        list: ['Sigue el flujo del hilo.', 'Mira el mapa y prepara el próximo salto.', 'Puedes reiniciar en cualquier momento.']
+      });
+      overlay.style.display = 'grid';
+    } else {
+      overlay.classList.remove('overlay--interactive');
+      overlay.style.display = 'none';
       this.lastTime = performance.now();
       requestAnimationFrame(this.loop);
     }
@@ -481,12 +590,9 @@ class Game {
     if (this.active) return;
     this.active = true;
     this.started = true;
-    this.setOverlay({
-      title: 'Presiona ESPACIO para iniciar',
-      text: 'Esquiva las excepciones y sobrevive el mayor tiempo posible.',
-      meta: 'Física con Delta Time · Colisiones AABB · Web Audio API',
-      list: ['Salta con ESPACIO o ↑', 'Agáchate con ↓ para bajar velocidad y esquivar obstáculos pequeños', 'P para pausar o reanudar la partida'],
-    });
+    this.helpVisible = false;
+    this.menuButtons.help.textContent = '¿Qué es?';
+    overlay.classList.remove('overlay--interactive');
     overlay.style.display = 'none';
     statusValue.textContent = 'EN EJECUCIÓN';
     this.lastTime = performance.now();
@@ -497,6 +603,8 @@ class Game {
     this.obstacles.length = 0;
     this.powerUps.length = 0;
     this.particles.length = 0;
+    this.boss = null;
+    this.bossActive = false;
     this.score = 0;
     this.level = 1;
     this.speed = 300;
@@ -506,14 +614,35 @@ class Game {
     this.currentTheme = LEVEL_THEMES[0];
     this.slowMotionTimer = 0;
     this.flashTimer = 0;
+    this.combo = 0;
+    this.comboTimer = 0;
+    this.comboMultiplier = 1;
     levelValue.textContent = this.level;
     scoreValue.textContent = Math.floor(this.score);
     this.active = true;
     this.paused = false;
+    this.started = true;
+    this.helpVisible = false;
+    this.menuButtons.help.textContent = '¿Qué es?';
     statusValue.textContent = 'EN EJECUCIÓN';
+    overlay.classList.remove('overlay--interactive');
     overlay.style.display = 'none';
     this.lastTime = performance.now();
     requestAnimationFrame(this.loop);
+  }
+
+  registerCombo() {
+    this.combo += 1;
+    this.comboTimer = 2.5;
+    this.comboMultiplier = 1 + Math.min(3, Math.floor(this.combo / 3)) * 0.35;
+    this.score += 10 * this.comboMultiplier;
+    this.audio.playClick();
+  }
+
+  spawnBoss() {
+    this.bossActive = true;
+    this.boss = new Boss();
+    this.audio.playCrash();
   }
 
   spawnObstacle() {
@@ -550,6 +679,19 @@ class Game {
     this.backgroundOffset += deltaTime * 210;
     this.flashTimer = Math.max(0, this.flashTimer - deltaTime);
     this.player.update(deltaTime);
+
+    if (this.comboTimer > 0) {
+      this.comboTimer -= deltaTime;
+      if (this.comboTimer <= 0) {
+        this.combo = 0;
+        this.comboMultiplier = 1;
+      }
+    }
+
+    if (this.score >= 1200 && !this.bossActive) {
+      this.spawnBoss();
+    }
+
     this.spawnTimer += deltaTime;
     if (this.spawnTimer >= this.spawnInterval) {
       this.spawnTimer = 0;
@@ -560,8 +702,22 @@ class Game {
       }
     }
 
+    if (this.bossActive && this.boss) {
+      this.boss.update(deltaTime);
+      if (this.boss.position.x + this.boss.size.width < -40) {
+        this.boss = null;
+        this.bossActive = false;
+      }
+    }
+
     this.obstacles.forEach((obstacle) => obstacle.update(deltaTime * (this.slowMotionTimer > 0 ? 0.72 : 1)));
-    this.obstacles = this.obstacles.filter((obstacle) => obstacle.position.x + obstacle.size.width > -40);
+    this.obstacles = this.obstacles.filter((obstacle) => {
+      const offscreen = obstacle.position.x + obstacle.size.width < -40;
+      if (offscreen) {
+        this.registerCombo();
+      }
+      return !offscreen;
+    });
 
     this.powerUps.forEach((power) => power.update(deltaTime));
     this.powerUps = this.powerUps.filter((power) => power.life > 0 && power.position.x + power.size.width > -40);
@@ -570,7 +726,7 @@ class Game {
     this.particles = this.particles.filter((particle) => particle.life > 0);
 
     const scoreFactor = this.slowMotionTimer > 0 ? 0.75 : 1;
-    this.score += deltaTime * 88 * scoreFactor;
+    this.score += deltaTime * 88 * scoreFactor * this.comboMultiplier;
     this.speed += deltaTime * 2.5;
     scoreValue.textContent = Math.floor(this.score);
     this.updateLevel();
@@ -587,6 +743,26 @@ class Game {
         }
         this.gameOver();
         break;
+      }
+    }
+
+    if (this.bossActive && this.boss) {
+      if (this.player.intersects(this.boss)) {
+        if (this.player.shieldTimer > 0) {
+          this.player.shieldTimer = 0;
+          this.boss.hp -= 1;
+          this.score += 120;
+          this.emitParticles(this.boss.position.x + this.boss.size.width / 2, this.boss.position.y + 80, '#ffb5d9');
+          this.audio.playPowerUp();
+          if (this.boss.hp <= 0) {
+            this.score += 400;
+            this.boss = null;
+            this.bossActive = false;
+            this.audio.playClick();
+          }
+        } else {
+          this.gameOver();
+        }
       }
     }
 
@@ -639,6 +815,15 @@ class Game {
     this.emitParticles(this.player.position.x + this.player.size.width / 2, this.player.position.y + this.player.size.height / 2, '#ff4b9b');
   }
 
+  drawParallaxLayer(height, color, speedRatio) {
+    const drift = (this.backgroundOffset * speedRatio) % (WIDTH + 200);
+    ctx.fillStyle = color;
+    for (let i = -1; i < 8; i++) {
+      const x = i * 180 - drift;
+      ctx.fillRect(x, GROUND_Y - height + 10, 110, height);
+    }
+  }
+
   drawGrid() {
     ctx.save();
     ctx.strokeStyle = this.currentTheme.grid;
@@ -670,6 +855,8 @@ class Game {
     ctx.fillRect(0, 0, WIDTH, HEIGHT * 0.3);
     ctx.restore();
 
+    this.drawParallaxLayer(140, this.currentTheme.accent + '18', 0.18);
+    this.drawParallaxLayer(90, this.currentTheme.accent + '12', 0.35);
     this.drawGrid();
 
     ctx.save();
@@ -694,14 +881,17 @@ class Game {
 
   drawStatus() {
     const powerLabel = this.player.shieldTimer > 0 ? 'ESCUDO' : this.slowMotionTimer > 0 ? 'SLOW' : 'NORMAL';
+    const comboText = this.combo > 0 ? `x${this.comboMultiplier.toFixed(1)}` : 'x1';
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.24)';
-    ctx.fillRect(20, 18, 290, 92);
+    ctx.fillRect(20, 18, 320, 110);
     ctx.fillStyle = '#b6f7ff';
     ctx.font = '16px IBM Plex Mono, monospace';
     ctx.fillText(`VEL: ${Math.floor(this.speed)} px/s`, 34, 42);
     ctx.fillText(`DIST: ${Math.floor(this.score)} pts`, 34, 66);
     ctx.fillText(`PWR: ${powerLabel}`, 34, 90);
+    ctx.fillStyle = '#ffd166';
+    ctx.fillText(`COMBO: ${comboText}`, 34, 114);
     ctx.restore();
   }
 
@@ -714,6 +904,7 @@ class Game {
     this.drawBackground();
     this.drawGround();
     this.player.draw(ctx);
+    if (this.bossActive && this.boss) this.boss.draw(ctx);
     this.obstacles.forEach((obstacle) => obstacle.draw(ctx));
     this.powerUps.forEach((power) => power.draw(ctx));
     this.particles.forEach((particle) => particle.draw(ctx));
