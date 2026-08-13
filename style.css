@@ -151,6 +151,39 @@ canvas {
   pointer-events: none;
 }
 
+.mobile-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.75rem;
+  display: none;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.touch-button {
+  pointer-events: auto;
+  appearance: none;
+  border: 1px solid rgba(251, 196, 19, 0.4);
+  background: linear-gradient(135deg, rgba(251, 196, 19, 0.9), rgba(255, 206, 88, 0.85));
+  color: #1c1464;
+  border-radius: 18px;
+  padding: 0.95rem 1.3rem;
+  font: inherit;
+  font-weight: 700;
+  min-width: 130px;
+  min-height: 56px;
+  box-shadow: 0 12px 24px rgba(12, 8, 30, 0.25);
+  touch-action: manipulation;
+}
+
+.touch-button--pause {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  color: var(--text);
+}
+
 .overlay--interactive {
   pointer-events: auto;
 }
@@ -634,13 +667,34 @@ body[data-game-mode="play"] .menu-page {
     padding: 0.5rem;
   }
 
+  .app-shell {
+    gap: 0.75rem;
+  }
+
+  .topbar {
+    padding: 0.8rem 0.9rem;
+  }
+
   .metrics {
     flex-direction: column;
+    width: 100%;
   }
 
   .metric {
     width: 100%;
     flex-basis: 100%;
+  }
+
+  .game-panel {
+    padding: 0.5rem;
+  }
+
+  .canvas-holder {
+    min-height: 56vh;
+  }
+
+  .mobile-controls {
+    display: flex;
   }
 
   .menu-page .menu-header h1,
@@ -662,5 +716,9 @@ body[data-game-mode="play"] .menu-page {
 
   .overlay__list {
     padding-left: 0.7rem;
+  }
+
+  .action-button {
+    min-height: 48px;
   }
 }

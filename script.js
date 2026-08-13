@@ -456,6 +456,8 @@ class Game {
       pause: document.getElementById('pauseButton'),
       restart: document.getElementById('restartButton'),
       menu: document.getElementById('menuButton'),
+      mobileJump: document.getElementById('mobileJumpButton'),
+      mobilePause: document.getElementById('mobilePauseButton'),
     };
     this.menuButtons.pause.textContent = 'Pausar';
     this.updateMenuButtons();
@@ -517,6 +519,33 @@ class Game {
     this.menuButtons.menu.addEventListener('click', () => {
       window.location.href = 'index.html';
     });
+
+    if (this.menuButtons.mobileJump) {
+      this.menuButtons.mobileJump.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        if (this.gameOverState) return;
+        if (!this.active) {
+          if (!this.started) {
+            this.start();
+          } else {
+            this.reset();
+          }
+          return;
+        }
+        if (!this.paused) {
+          this.player.jump();
+        }
+      });
+    }
+
+    if (this.menuButtons.mobilePause) {
+      this.menuButtons.mobilePause.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        if (this.started && !this.gameOverState) {
+          this.togglePause();
+        }
+      });
+    }
 
   }
 
