@@ -458,6 +458,7 @@ class Game {
       pause: document.getElementById('pauseButton'),
       restart: document.getElementById('restartButton'),
       menu: document.getElementById('menuButton'),
+      help: null,
       mobileJump: document.getElementById('mobileJumpButton'),
       mobilePause: document.getElementById('mobilePauseButton'),
     };
@@ -473,6 +474,9 @@ class Game {
     const isMenuPage = document.body.dataset.gameMode !== 'play';
     const shouldAutoStart = new URLSearchParams(window.location.search).get('start') === '1';
 
+    overlay.classList.remove('overlay--interactive', 'overlay--compact', 'overlay--help', 'overlay--login');
+    overlay.style.display = 'none';
+
     if (isMenuPage) {
       this.showMenu();
     } else if (shouldAutoStart) {
@@ -484,7 +488,7 @@ class Game {
       overlay.style.display = 'none';
       statusValue.textContent = 'EN EJECUCIÓN';
       this.lastTime = performance.now();
-      requestAnimationFrame(this.loop);
+      requestAnimationFrame((time) => this.loop(time));
     }
     this.draw();
     window.addEventListener('resize', () => {
@@ -578,7 +582,9 @@ class Game {
     overlay.classList.add('overlay--interactive', 'overlay--login');
     this.audio.startMenuMusic();
     this.menuButtons.play.textContent = 'Jugar';
-    this.menuButtons.help.textContent = '¿Qué es?';
+    if (this.menuButtons.help) {
+      this.menuButtons.help.textContent = '¿Qué es?';
+    }
     this.setOverlay({
       title: 'KERNEL RUN',
       text: 'Escapa del kernel y sobrevive al caos digital.',
@@ -665,7 +671,9 @@ class Game {
       overlay.classList.add('overlay--interactive', 'overlay--compact');
       this.menuButtons.play.textContent = 'Continuar';
       this.menuButtons.pause.style.display = 'none';
-      this.menuButtons.help.style.display = 'none';
+      if (this.menuButtons.help) {
+        this.menuButtons.help.style.display = 'none';
+      }
       this.menuButtons.menu.style.display = 'none';
       this.menuButtons.restart.style.display = 'inline-flex';
       this.setOverlay({
@@ -683,7 +691,7 @@ class Game {
       this.menuButtons.restart.style.display = 'inline-flex';
       overlay.style.display = 'none';
       this.lastTime = performance.now();
-      requestAnimationFrame(this.loop);
+      requestAnimationFrame((time) => this.loop(time));
     }
   }
 
@@ -700,6 +708,9 @@ class Game {
     this.helpVisible = false;
     this.menuButtons.play.textContent = 'Jugar';
     this.menuButtons.pause.textContent = 'Pausar';
+    if (this.menuButtons.help) {
+      this.menuButtons.help.style.display = 'inline-flex';
+    }
     overlay.classList.remove('overlay--interactive', 'overlay--compact', 'overlay--help', 'overlay--login');
     overlay.style.display = 'none';
     statusValue.textContent = 'EN EJECUCIÓN';
@@ -744,7 +755,7 @@ class Game {
     overlay.style.display = 'none';
     this.updateMenuButtons();
     this.lastTime = performance.now();
-    requestAnimationFrame(this.loop);
+    requestAnimationFrame((time) => this.loop(time));
   }
 
   registerCombo() {
@@ -1043,6 +1054,7 @@ class Game {
 
 if (canvas && overlay && scoreValue && levelValue && statusValue && bestScoreValue) {
   const game = new Game();
+  window.game = game;
 
   window.addEventListener('click', () => {
     if (game.gameOverState) return;

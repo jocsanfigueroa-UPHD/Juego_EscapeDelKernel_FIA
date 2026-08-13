@@ -4,10 +4,44 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kernel Run | Juego</title>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('start') === '1') {
+      document.documentElement.classList.add('start-direct');
+    }
+  </script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body data-game-mode="play">
   <div class="app-shell">
+    <header class="topbar">
+      <div class="brand brand--logo">
+        <img id="logo" src="logo.png" alt="Logo del juego" />
+        <div>
+          <span class="brand__label">KERNEL RUN</span>
+          <span class="brand__sub">Escape del Kernel FIA</span>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric" id="scorePanel">
+          <span class="metric__title">Score</span>
+          <span class="metric__value" id="scoreValue">0</span>
+        </div>
+        <div class="metric" id="levelPanel">
+          <span class="metric__title">Nivel</span>
+          <span class="metric__value" id="levelValue">1</span>
+        </div>
+        <div class="metric" id="statusPanel">
+          <span class="metric__title">Estado</span>
+          <span class="metric__value" id="statusValue">LISTO</span>
+        </div>
+        <div class="metric metric--best" id="bestScorePanel">
+          <span class="metric__title">Mejor</span>
+          <span class="metric__value" id="bestScoreValue">0</span>
+        </div>
+      </div>
+    </header>
+
     <main class="game-grid">
       <section class="game-panel">
         <div class="canvas-holder">
