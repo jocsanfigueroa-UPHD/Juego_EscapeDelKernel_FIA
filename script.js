@@ -494,16 +494,31 @@ class Game {
       text: 'Es un runner ciberpunk inspirado en errores del sistema, donde debes sobrevivir evitando fallos del kernel y acumulando puntos.',
       meta: 'Realizado por Jocsan Zelaya · Fundamentos de Inteligencia Artificial',
       list: [
-        'Nombre del juego: Escape del Kernel FIA.',
-        'Objetivo: esquivar errores del sistema y sobrevivir el mayor tiempo posible.',
-        'Controles: Espacio o ↑ para saltar, ↓ para agacharte, P para pausar, y los botones del menú para jugar o reiniciar.',
-        'NullPointerException: error cuando una referencia apunta a un valor nulo.',
-        'StackOverflow: la pila de ejecución se llena y el sistema se rompe.',
-        'MemoryLeak: la memoria se queda ocupada y no se libera.',
-        'Combo: serie de obstáculos evitados sin tocar nada.',
-        'Boss final: enemigo gigante que aparece al llegar a la fase final.',
-        'Parallax: capas de fondo que se mueven a distinta velocidad para dar profundidad.',
-        'Realizado por: Jocsan Zelaya, con HTML Canvas y JavaScript orientado a objetos.'
+        `<div class="help-sections">
+          <section class="help-section">
+            <h3>Objetivo</h3>
+            <p>Superar el corredor del sistema evitando errores y recogiendo bonus para mantener el flujo de ejecución.</p>
+          </section>
+          <section class="help-section">
+            <h3>Controles</h3>
+            <p>Espacio o ↑ para saltar, ↓ para agacharte, P para pausar o continuar, y los botones del menú para jugar o reiniciar.</p>
+          </section>
+          <section class="help-section">
+            <h3>Conceptos clave</h3>
+            <ul>
+              <li><strong>NullPointerException:</strong> una referencia vacía rompe el hilo.</li>
+              <li><strong>StackOverflow:</strong> la pila se llena y el sistema falla.</li>
+              <li><strong>MemoryLeak:</strong> la memoria no se libera y se corre el riesgo de saturación.</li>
+              <li><strong>Combo:</strong> serie de obstáculos evitados sin tocar nada.</li>
+              <li><strong>Boss final:</strong> enemigo gigante que aparece en una fase avanzada.</li>
+              <li><strong>Parallax:</strong> capas del fondo con distinta velocidad para darle profundidad.</li>
+            </ul>
+          </section>
+          <section class="help-section">
+            <h3>Autor</h3>
+            <p>Creado por Jocsan Zelaya usando HTML Canvas y JavaScript orientado a objetos.</p>
+          </section>
+        </div>`
       ],
     });
     overlay.classList.add('overlay--interactive');
@@ -533,7 +548,9 @@ class Game {
     overlayTitle.textContent = title;
     overlayText.textContent = text;
     overlayMeta.innerHTML = `<strong>${meta}</strong>`;
-    overlayList.innerHTML = list.map((item) => `<li>${item}</li>`).join('');
+    overlayList.innerHTML = list
+      .map((item) => (typeof item === 'string' && item.includes('<') ? item : `<li>${item}</li>`))
+      .join('');
   }
 
   updateBestScore() {

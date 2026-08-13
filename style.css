@@ -192,13 +192,49 @@ canvas {
 .overlay__list {
   text-align: left;
   margin: 1rem auto 0.75rem;
-  max-width: 420px;
-  padding-left: 1.2rem;
+  max-width: 520px;
+  padding-left: 0;
   color: var(--text-muted);
+  list-style: none;
 }
 
 .overlay__list li {
   margin-bottom: 0.45rem;
+}
+
+.help-sections {
+  display: grid;
+  gap: 0.9rem;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.help-section {
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(122, 196, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(9, 18, 32, 0.72);
+}
+
+.help-section h3 {
+  margin: 0 0 0.45rem;
+  color: var(--accent);
+  font-size: 0.92rem;
+  letter-spacing: 0.06rem;
+  text-transform: uppercase;
+}
+
+.help-section p,
+.help-section li {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.help-section ul {
+  margin: 0;
+  padding-left: 1.1rem;
 }
 
 .overlay__meta {
