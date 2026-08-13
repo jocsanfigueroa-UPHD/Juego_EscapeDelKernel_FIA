@@ -30,7 +30,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
 }
 
 .app-shell {
@@ -556,31 +556,111 @@ body[data-game-mode="play"] .menu-page {
 }
 
 @media (max-width: 900px) {
+  body {
+    padding: 0.75rem;
+  }
+
+  .app-shell {
+    width: 100%;
+  }
+
   .game-grid {
     grid-template-columns: 1fr;
   }
 
+  .topbar,
   .footer-bar,
-  .topbar {
+  .menu-page .menu-header,
+  .about-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
+  }
+
+  .metrics {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .metric {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 0;
+  }
+
+  .menu-shell,
+  .about-shell,
+  .game-panel {
+    padding: 1rem;
+  }
+
+  .menu-grid,
+  .about-content {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-actions,
+  .overlay__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .menu-button,
+  .action-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .overlay {
+    padding: 0.75rem;
+  }
+
+  .overlay__card {
+    width: min(100%, 420px);
+    padding: 1rem;
+  }
+
+  .menu-logo {
+    width: 58px;
+    height: 58px;
   }
 }
 
 @media (max-width: 640px) {
+  :root {
+    font-size: 14px;
+  }
+
   body {
-    padding: 1rem;
+    padding: 0.5rem;
+  }
+
+  .metrics {
+    flex-direction: column;
   }
 
   .metric {
-    min-width: 100%;
+    width: 100%;
+    flex-basis: 100%;
   }
 
-  .overlay {
-    padding: 1rem;
+  .menu-page .menu-header h1,
+  .about-header h1,
+  .overlay__card h1 {
+    text-align: center;
+    font-size: clamp(1.8rem, 8vw, 2.6rem);
   }
 
-  .overlay__card {
-    padding: 1rem;
+  .chip {
+    letter-spacing: 0.08rem;
+  }
+
+  .menu-subtitle,
+  .overlay__card p,
+  .overlay__list li {
+    font-size: 0.92rem;
+  }
+
+  .overlay__list {
+    padding-left: 0.7rem;
   }
 }
